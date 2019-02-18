@@ -1,0 +1,237 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Anglican Hymn REST API
+  description: "Nyimbo Standard"
+# during dev, should point to your local machine
+host: nyimbostandard.herokuapp.com
+# host: localhost:10010
+# basePath prefixes all resource paths
+basePath: /
+schemes:
+  # tip: remove http to make production-grade
+  # - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /song:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: song.controller
+    get:
+      tags: [Song]
+      description: Returns 'songs' to the caller
+      # used as the method name of the controller
+      operationId: getAllSongs
+      responses:
+        "200":
+          description: Song Found
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/songResponse"
+        "404":
+          description: Empty Collection
+          schema:
+            $ref: "#/definitions/message"
+        # responses may fall through to errors
+        "500":
+          description: Error
+          schema:
+            $ref: "#/definitions/message"
+
+    post:
+      tags: [Song]
+      description: Creates new Song entry
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: createSong
+      parameters:
+        - name: songdata
+          required: true
+          in: body
+          description: a new song details
+          schema:
+            $ref: "#/definitions/songResponse"
+      responses:
+        "201":
+          description: New Song Created
+          schema:
+            $ref: "#/definitions/songResponse"
+        "500":
+          description: Error
+          schema:
+            $ref: "#/definitions/message"
+    delete:
+      tags: [Song]
+      description: Remove all Song in database
+      operationId: removeAllSong
+      responses:
+        "200":
+          description: Successfully removed all song
+          schema:
+            $ref: "#/definitions/message"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/message"
+
+  /song/{songid}:
+    x-swagger-router-controller: song.controller
+    get:
+      tags: [Song]
+      description: Return single song by given id
+      operationId: getSingleSong
+      parameters:
+        - name: songid
+          required: true
+          in: path
+          type: string
+      responses:
+        "200":
+          description: Song Found
+          schema:
+            $ref: "#/definitions/songResponse"
+        "404":
+          description: Song not Found
+          schema:
+            $ref: "#/definitions/message"
+        "500":
+          description: Error
+          schema:
+            $ref: "#/definitions/message"
+    delete:
+      tags: [Song]
+      description: Remove single song by given id
+      operationId: removeSingleSong
+      parameters:
+        - name: songid
+          required: true
+          in: path
+          type: string
+      responses:
+        "200":
+          description: Successfully removed
+          schema:
+            $ref: "#/definitions/message"
+        "500":
+          description: Error
+          schema:
+            $ref: "#/definitions/message"
+    put:
+      tags: [Song]
+      description: Update by song id
+      operationId: updateSingleSong
+      parameters:
+        - name: songid
+          in: path
+          required: true
+          type: string
+        - name: song
+          in: body
+          description: The Updated song info
+          required: true
+          schema:
+            $ref: "#/definitions/songResponse"
+      responses:
+        "200":
+          description: User Found and Updated
+          schema:
+            $ref: "#/definitions/songResponse"
+        "404":
+          description: Song not Found
+          schema:
+            $ref: "#/definitions/message"
+        "500":
+          description: Error
+          schema:
+            $ref: "#/definitions/message"
+
+  /song/{songlanguage}/bylanguage/:
+    x-swagger-router-controller: song.controller
+    get:
+      tags: [Song]
+      description: Return All songs by given language
+      operationId: getSongBylanguage
+      parameters:
+        - name: songlanguage
+          required: true
+          in: path
+          type: string
+      responses:
+        "200":
+          description: Song Found
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/songResponse"
+        "404":
+          description: Song not Found
+          schema:
+            $ref: "#/definitions/message"
+        "500":
+          description: Error
+          schema:
+            $ref: "#/definitions/message"
+
+definitions:
+# General Response Message
+  message:
+    required:
+      - success
+      - message
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+
+#course definition for response
+  songResponse:
+    properties:
+      _id:
+        type: string
+      songnumber:
+        type: number
+      songname:
+        type: string
+      songlanguage:
+        type: string
+      alternativebook:
+        type: array
+        items:
+          type: object
+          properties:
+            foundnumber:
+              type: number
+            bookname:
+              type: string
+      songcontent:
+        type: array
+        items:
+          type: object
+          properties:
+            versenumber:
+              type: number
+            verse:
+              type: string
+            chorous:
+              type: ["string", 'null']
+      status:
+        type: string
+      created_at:
+        type: string
+        format: datetime
+      updated_at:
+        type: string
+        format: datetime
+
+
+
+
